@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'MAVEN_HOME'  // Nom donné dans Configure Tools
+        maven 'MAVEN_HOME'  
     }
 
     stages {

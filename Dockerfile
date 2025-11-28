@@ -1,13 +1,11 @@
-# Etape 1 : Build du projet Spring Boot
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+# Étape 1 : builder le JAR localement
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
-COPY . .
+COPY student-management/ .
 RUN mvn clean package -DskipTests
 
-# Etape 2 : Image finale (plus légère)
+# Étape 2 : créer l’image finale légère
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-
-EXPOSE 8089
+COPY --from=build /app/target/student-management-0.0.1-SNAPSHOT.jar ./app.jar
 ENTRYPOINT ["java","-jar","app.jar"]

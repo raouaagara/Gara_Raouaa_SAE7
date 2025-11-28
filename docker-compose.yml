@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-student
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: studentdb
+    ports:
+      - "3308:3306"  # pour accéder depuis l'extérieur si nécessaire
+    networks:
+      - student-net
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  spring:
+    image: raouaaa/student-management:1.0
+    container_name: spring-student
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8089:8089"  # redirige le port 8089 du conteneur vers la machine
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/studentdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8089  
+    networks:
+      - student-net
+
+networks:
+  student-net:
+
+volumes:
+  mysql-data:

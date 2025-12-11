@@ -1,28 +1,27 @@
-# -----------------------
+# -----------------------------
 # Étape 1 : Build Maven
-# -----------------------
+# -----------------------------
 FROM maven:3.9.6-eclipse-temurin-17 AS build
 
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier seulement les fichiers nécessaires pour Maven (optimisation du cache)
+# Copier seulement les fichiers nécessaires pour optimiser le cache
 COPY pom.xml .
 COPY src ./src
 
-# Build le projet et créer le jar (sans tests)
+# Compiler et packager l'application
 RUN mvn clean package -DskipTests
 
-# -----------------------
+# -----------------------------
 # Étape 2 : Image finale légère
-# -----------------------
+# -----------------------------
 FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
-# Copier le jar buildé depuis l'étape précédente
-COPY --from=build /app/target/student-management-0.0.1-SNAPSHOT.jar ./app.jar
+# Copier le jar depuis l'étape de build
+COPY --from=build /app/target/student-management-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
-
+# Définir le point d'entrée
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
